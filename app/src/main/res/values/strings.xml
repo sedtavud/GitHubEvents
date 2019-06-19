@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">GitHubEvents</string>
+    <string name="main_host_url">https://api.github.com</string>
+</resources>
