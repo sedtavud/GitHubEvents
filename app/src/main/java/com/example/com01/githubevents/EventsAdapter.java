@@ -15,6 +15,15 @@ import java.util.List;
 
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder> {
     private List<EventsResponse> mData;
+    private OnItemClickListener mClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener clickListener){
+        mClickListener = clickListener;
+    }
+
+    public interface  OnItemClickListener{
+        void onItemClick(int position);
+    }
 
     public EventsAdapter(List<EventsResponse> data){
         mData = data;
@@ -29,12 +38,17 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull EventsAdapter.ViewHolder viewHolder, int i) {
-        viewHolder.id.setText(String.valueOf(mData.get(i).getActor().getId()));
+        viewHolder.id.setText(String.valueOf(mData.get(i).getId()));
         viewHolder.login.setText(mData.get(i).getActor().getLogin());
-        viewHolder.display_login.setText(mData.get(i).getActor().getDisplay_login());
-        viewHolder.gravatar_id.setText(mData.get(i).getActor().getGravatar_id());
-        viewHolder.url.setText(mData.get(i).getActor().getUrl());
-        Picasso.get().load(mData.get(i).getActor().getAvatar_url()).into(viewHolder.avatar);
+//        viewHolder.display_login.setText(mData.get(i).getActor().getDisplay_login());
+//        viewHolder.gravatar_id.setText(mData.get(i).getActor().getGravatar_id());
+//        viewHolder.url.setText(mData.get(i).getActor().getUrl());
+        if (mData.get(i).getActor().getAvatar_url()!=null){
+            Picasso.get().load(mData.get(i).getActor().getAvatar_url()).into(viewHolder.avatar);
+        }else{
+            viewHolder.avatar.setImageResource(R.drawable.avatar);
+        }
+
     }
 
     @Override
@@ -44,7 +58,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
 
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView id,login,display_login,gravatar_id,url;
         ImageView avatar;
@@ -53,11 +67,24 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
             super(itemView);
             id = itemView.findViewById(R.id.id);
             login = itemView.findViewById(R.id.login);
-            display_login = itemView.findViewById(R.id.display_login);
-            gravatar_id = itemView.findViewById(R.id.gravatar_id);
-            url = itemView.findViewById(R.id.url);
+//            display_login = itemView.findViewById(R.id.display_login);
+//            gravatar_id = itemView.findViewById(R.id.gravatar_id);
+//            url = itemView.findViewById(R.id.url);
             avatar = itemView.findViewById(R.id.avatar_url);
-
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mClickListener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            mClickListener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
+
     }
+
+
 }

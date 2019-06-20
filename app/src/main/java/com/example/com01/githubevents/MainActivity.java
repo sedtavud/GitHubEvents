@@ -1,5 +1,6 @@
 package com.example.com01.githubevents;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,13 +21,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements EventsAdapter.OnItemClickListener {
 
     ApiService apiService;
     private RecyclerView recyclerView;
     private EventsAdapter adapter;
     private List<EventsResponse> resData;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    public static final String EXTRA_ID = "id";
+    public static final String EXTRA_LOGIN = "display_login";
+    public static final String EXTRA_URL = "url";
+    public static final String EXTRA_IMAGE = "avatar_url";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +60,12 @@ public class MainActivity extends AppCompatActivity {
         responseCall.enqueue(new Callback<List<EventsResponse>>() {
             @Override
             public void onResponse(Call<List<EventsResponse>> call, Response<List<EventsResponse>> response) {
-                Toast.makeText(getApplicationContext(),"OK Work"+response.code(),Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(),"OK Work"+response.code(),Toast.LENGTH_LONG).show();
                 if (response.isSuccessful()) {
                     resData = response.body();
 
                     adapter = new EventsAdapter(resData);
+                    adapter.setOnItemClickListener(MainActivity.this);
                     recyclerView.setAdapter(adapter);
 
                 } else {
@@ -71,10 +77,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<EventsResponse>> call, Throwable t) {
                 Log.e("Main","Error : " + t.getMessage());
-                Toast.makeText(getApplicationContext(),"not work",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"can't connect to server!",Toast.LENGTH_LONG).show();
             }
 
 
         });
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        EventsResponse data = resData.get(position);
+        Intent intent = new Intent(this,EventDetail.class);
+//        Toast.makeText(getApplicationContext(),"ID : "+data.getActor().getId(),Toast.LENGTH_LONG).show();
+        intent.putExtra(EXTRA_ID,String.valueOf(data.getActor().getId()));
+        intent.putExtra(EXTRA_LOGIN,data.getActor().getDisplay_login());
+        intent.putExtra(EXTRA_URL,data.getActor().getUrl());
+        intent.putExtra(EXTRA_IMAGE,data.getActor().getAvatar_url());
+        startActivity(intent);
     }
 }
